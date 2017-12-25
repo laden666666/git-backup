@@ -7,7 +7,6 @@ const extractZip  = require('extract-zip');
 const filesTree = require('files-tree');
 const zip = require("node-native-zip");
 
-
 function initialiseRepo (git, origin) {
     return git.init()
     .then(() => git.addRemote('origin', origin))
