@@ -1,0 +1,10 @@
+.search-input{
+    border-width: 0;
+}
+.search-input:focus{
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+.search-text{
+    font-size: 16px;
+    margin-right: 15px;
+}
