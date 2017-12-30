@@ -1,9 +1,8 @@
-import Vue from 'vue/dist/vue.js'
-import Vuex from 'vuex'
+import { combineReducers } from 'redux'
+import repertoryList from '../reducers/repertoryList'
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-    labels: [],
-    repositories: [],
+const rootReducer = combineReducers({
+    repertoryList
 })
+
+export default rootReducer

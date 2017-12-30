@@ -6,6 +6,7 @@ const { Header, Footer, Sider, Content } = Layout;
 import LabelList from '../LabelList/'
 import Search from '../Search'
 import RepertoryList from '../RepertoryList'
+import FooterBtns from '../FooterBtns'
 
 export default class App extends React.Component{
     render(){
@@ -20,7 +21,9 @@ export default class App extends React.Component{
                 <Content>
                     <RepertoryList></RepertoryList>
                 </Content>
-                <Footer>Footer</Footer>
+                <Footer>
+                    <FooterBtns></FooterBtns>
+                </Footer>
             </Layout>
         </Layout>);
     }

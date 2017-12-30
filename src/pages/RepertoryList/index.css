@@ -3,7 +3,25 @@
 .ant-table-header{
     overflow-y: hidden;
 }
-
 .repertoryList{
+    width: calc(100% - 10px);
+    margin-left: 10px;
+}
+.repertoryListColumns{
+    color: #000;
+}
+.repertoryListBtns{
 
+}
+.ant-table-placeholder{
+    color: #777;
+}
+.noDataRedText{
+    box-sizing : border-box ;
+    margin : 0px 2px ;
+    padding : 1px 3px ;
+    background : rgb(242, 244, 245) ;
+    border-radius : 3px ;
+    border : 1px solid rgb(238, 238, 238) ;
+    color : rgb(49, 70, 89) ;
 }

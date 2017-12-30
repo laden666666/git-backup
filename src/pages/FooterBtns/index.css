@@ -1,0 +1,21 @@
+.footer{
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+.footer .right-btns{
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.footer .right-btns::before{
+    display: block;
+    flex: 1;
+    content: '';
+}
+.footer .right-btns button{
+    margin-left: 5px;
+}

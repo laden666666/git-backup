@@ -7,14 +7,17 @@ const columns = [{
     title: '工程名',
     dataIndex: 'name',
     width: '16%',
+    className: 'repertoryListColumns',
 }, {
     title: '仓库地址',
     dataIndex: 'repertoryURL',
     width: '40%',
+    className: 'repertoryListColumns',
 }, {
     title: '标签',
     dataIndex: 'label',
     width: '24%',
+    className: 'repertoryListColumns',
     render: () => (
         <Labels>
         </Labels>)
@@ -23,15 +26,16 @@ const columns = [{
     dataIndex: '',
     key: 'x',
     width: '20%',
+    className: 'repertoryListColumns',
     render: () => (
-        <div className="repertoryList">
+        <div className="repertoryListBtns">
             <Button size={'small'} icon={'edit'}>编辑</Button> &nbsp;
             <Button size={'small'} icon={'delete'} type="danger">删除</Button>
         </div>) },
 ];
 
 const data = [];
-for (let i = 0; i < 46; i++) {
+for (let i = 0; i < 0; i++) {
     data.push({
         key: i,
         name: `资源 ${i}`,
@@ -67,9 +71,10 @@ export default class RepertoryList extends React.Component {
         };
         const hasSelected = selectedRowKeys.length > 0;
         return (
-            <div>
+            <div className="repertoryList">
                 <Table footer={undefined} pagination={false} rowSelection={rowSelection} columns={columns}
-                       dataSource={data} scroll={{y: 'calc(100vh - 180px)'}}/>
+                       dataSource={data} scroll={{y: 'calc(100vh - 180px)'}}
+                       locale={{emptyText: <div>目前没有可备份的仓库，点击<span className="noDataRedText">新建</span>或者<span className="noDataRedText">导入</span>创建要备份的git仓库</div>}}/>
             </div>
         );
     }
