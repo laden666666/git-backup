@@ -2,7 +2,15 @@
 
 .ant-table-header{
     overflow-y: hidden;
+
 }
+.ant-table-header::-webkit-scrollbar-track-piece{width:16px;background-color:#fafafa;  }
+
+.ant-table-header::-webkit-scrollbar{width:16px;height:6px ; }
+
+.ant-table-header::-webkit-scrollbar-thumb{height:50px;background:#fafafa;   cursor:pointer;}
+
+.ant-table-header::-webkit-scrollbar-thumb:hover{background:#fafafa ; cursor:pointer}
 .repertoryList{
     width: calc(100% - 10px);
     margin-left: 10px;

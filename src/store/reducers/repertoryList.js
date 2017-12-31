@@ -21,7 +21,7 @@ export default function repertoryList(state = initialState, {type, payload}) {
                     repertory
             )
 
-        case repertoryListTypes.ADD_GIT_REPERTORY_LABEL:
+        case repertoryListTypes.ADD_GIT_REPERTORY_LABEL: {
             const {id, label} = payload
             return state.map(repertory =>{
                 if(repertory.id === id && !~repertory.labels.indexOf(label)){
@@ -29,8 +29,9 @@ export default function repertoryList(state = initialState, {type, payload}) {
                 }
                 return repertory
             })
+        }
 
-        case repertoryListTypes.DELETE_GIT_REPERTORY_LABEL:
+        case repertoryListTypes.DELETE_GIT_REPERTORY_LABEL: {
             const {id, label} = payload
             return state.map(repertory =>{
                 if(repertory.id === id){
@@ -38,6 +39,7 @@ export default function repertoryList(state = initialState, {type, payload}) {
                 }
                 return repertory
             })
+        }
         default:
             return state
     }

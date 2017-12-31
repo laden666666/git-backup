@@ -1,8 +1,8 @@
-import { combineReducers } from 'redux'
-import repertoryList from '../reducers/repertoryList'
+import { combineReducers, createStore } from 'redux'
+import repertoryList from './reducers/repertoryList'
 
-const rootReducer = combineReducers({
+const store = createStore(combineReducers({
     repertoryList
-})
+}))
 
-export default rootReducer
+export default store

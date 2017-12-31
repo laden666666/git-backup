@@ -1,29 +1,36 @@
-import { Modal, Button, Form, Input, AutoComplete } from 'antd';
 import React from 'react';
+import { Modal, Button, Form, Input, AutoComplete } from 'antd';
 import PropTypes from 'prop-types';
+import Labels from '../../RepertoryList/Labels';
 import {GitRepertoryFactory} from '../../../entity/GitRepertory';
+import {addGitRepertory, editGitRepertory} from '../../../actions'
 
 const FormItem = Form.Item;
 
 const EditGitRepertoryForm = Form.create({
     onFieldsChange(props, changedFields) {
-        var changedObject = {}
-        Object.keys(changedFields).forEach(key=>changedObject[key] = changedFields[key].value)
-        props.onChange(changedObject);
+        var gitRepertory = {}
+        Object.keys(changedFields).forEach(key=>gitRepertory[key] = changedFields[key].value)
+        props.onChange({gitRepertory, formInfo: changedFields});
     },
     mapPropsToFields(props) {
+        const {gitRepertory, formInfo} = props
         return {
             id: Form.createFormField({
-                value: props.id,
+                ...formInfo.id,
+                value: gitRepertory.id,
             }),
             name: Form.createFormField({
-                value: props.name,
+                ...formInfo.name,
+                value: gitRepertory.name,
             }),
             repertoryURL: Form.createFormField({
-                value: props.repertoryURL,
+                ...formInfo.repertoryURL,
+                value: gitRepertory.repertoryURL,
             }),
             labels: Form.createFormField({
-                value: props.labels,
+                ...formInfo.labels,
+                value: [...gitRepertory.labels],
             }),
         };
     },
@@ -31,19 +38,28 @@ const EditGitRepertoryForm = Form.create({
         console.log(values);
     },
 })((props) => {
-    const { getFieldDecorator } = props.form;
+    const { getFieldDecorator, setFieldsValue } = props.form;
+
+    const formItemLayout = {
+        labelCol: { span: 8 },
+        wrapperCol: { span: 14 },
+    };
     return (
-        <Form layout="inline">
-            <FormItem label="项目名称">
+        <Form>
+            <FormItem label="项目名称" {...formItemLayout}>
                 {getFieldDecorator('name', {
-                    rules: [{ required: true, message: 'Username is required!' }],
+                    rules: [{ required: true, message: '项目名必须填写' }],
                 })(<Input />)}
             </FormItem>
-            <FormItem label="仓库URL地址">
+            <FormItem label="仓库URL地址" {...formItemLayout}>
                 {getFieldDecorator('repertoryURL', {
                     rules: [{ required: true, message: '仓库URL地址必须填写' },
                         { pattern: /(https?|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/, message: '仓库URL地址格式错误' }],
                 })(<Input />)}
+            </FormItem>
+            <FormItem label="标签" {...formItemLayout}>
+                {getFieldDecorator('labels', {
+                })(<Labels ></Labels>)}
             </FormItem>
         </Form>
     );
@@ -53,13 +69,19 @@ export class EditGitRepertory extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            _gitRepertory: props.gitRepertory
+            //受控控件，这里使用gitRepertory初始化真正的表单_gitRepertory。
+            _gitRepertory: props.gitRepertory ? props.gitRepertory : GitRepertoryFactory.create(),
+            //表单验证的相关信息的保存
+            formInfo: {},
+            //缓存是新建还是编辑
+            isEdit: props.gitRepertory ? true : false
         }
     }
 
-    handleFormChange = (changedFields) => {
+    handleFormChange = ({formInfo, gitRepertory}) => {
         this.setState({
-            _gitRepertory: { ...this.state._gitRepertory, ...changedFields },
+            _gitRepertory: { ...this.state._gitRepertory, ...gitRepertory },
+            formInfo: {...this.state.formInfo, ...formInfo},
         });
     }
 
@@ -67,7 +89,12 @@ export class EditGitRepertory extends React.Component {
         this.refs.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 if(typeof this.props.onOk === 'function'){
-                    this.props.onOk()
+                    if(this.state.isEdit){
+                        editGitRepertory(this.state._gitRepertory)
+                    } else {
+                        addGitRepertory(this.state._gitRepertory)
+                    }
+                    this.props.onOk(this.state._gitRepertory)
                 }
             }
         });
@@ -95,7 +122,7 @@ export class EditGitRepertory extends React.Component {
                     </Button>,
                 ]}
             >
-                <EditGitRepertoryForm ref="form" {...this.state._gitRepertory} onChange={this.handleFormChange} />
+                <EditGitRepertoryForm ref="form" gitRepertory={this.state._gitRepertory} formInfo={this.state.formInfo} onChange={this.handleFormChange} />
             </Modal>
         );
     }
@@ -106,8 +133,4 @@ EditGitRepertory.propTypes = {
     visible: PropTypes.bool.isRequired,
     //编辑的GitRepertory对象，如果为空则表示为新建
     gitRepertory: PropTypes.object,
-};
-
-EditGitRepertory.defaultProps = {
-    gitRepertory: GitRepertoryFactory.create()
 };

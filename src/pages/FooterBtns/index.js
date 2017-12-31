@@ -1,9 +1,10 @@
 'use babel';
 import React from 'react';
+import {connect} from 'react-redux';
 import { Button } from 'antd';
 import {EditGitRepertory} from './EditGitRepertory'
 
-export default class FooterBtns extends React.Component{
+class FooterBtns extends React.Component{
     state = {
         //显示创建新仓库
         showEditGitRepertory: false,
@@ -11,7 +12,6 @@ export default class FooterBtns extends React.Component{
 
     constructor(props){
         super(props)
-        this.a = 111
     }
 
     //创建GitRepertory表单相关
@@ -22,7 +22,7 @@ export default class FooterBtns extends React.Component{
         })
     }
     //保存GitRepertory
-    handleEditGitRepertoryOk = ()=>{
+    handleEditGitRepertoryOk = gitRepertory=>{
         this.setState({
             showEditGitRepertory: false
         })
@@ -54,3 +54,5 @@ export default class FooterBtns extends React.Component{
         </div>);
     }
 }
+
+export default connect(null)(FooterBtns)
