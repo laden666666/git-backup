@@ -2,6 +2,7 @@
 node_modules/
 work/
 npm-debug.log*
+loki.json
 
 # Editor directories and files
 .idea
