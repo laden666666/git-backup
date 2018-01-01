@@ -2,7 +2,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import { Button } from 'antd';
-import {EditGitRepertory} from './EditGitRepertory'
+import {EditGitRepertory} from '../EditGitRepertory'
 
 class FooterBtns extends React.Component{
     state = {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Modal, Button, Form, Input, AutoComplete } from 'antd';
 import PropTypes from 'prop-types';
-import Labels from '../../RepertoryList/Labels';
-import {GitRepertoryFactory} from '../../../entity/GitRepertory';
-import {addGitRepertory, editGitRepertory} from '../../../actions'
+import Labels from '../RepertoryList/Labels/index';
+import {GitRepertoryFactory} from '../../entity/GitRepertory';
+import {addGitRepertory, editGitRepertory} from '../../service/gitRepertoryService'
 
 const FormItem = Form.Item;
 

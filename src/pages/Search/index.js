@@ -1,42 +1,29 @@
 'use babel';
 import React from 'react';
-import { AutoComplete, Icon } from 'antd';
+import {connect} from 'react-redux';
+import { Icon, Input } from 'antd';
+import selector from './selector';
+import {changeFilterText} from '../../service/gitRepertoryService';
 
-function onSelect(value) {
-    console.log('onSelect', value);
-}
+const SearchInput = Input.Search;
 
-export default class Search extends React.Component {
-    state = {
-        dataSource: [],
+class Search extends React.Component {
+
+    handleSearch = (value)=>{
+        changeFilterText(value)
     }
 
-    handleSearch = (value) => {
-        this.setState({
-            dataSource: !value ? [] : [
-                value,
-                value + value,
-                value + value + value,
-            ],
-        });
-    }
     render() {
-        const { dataSource } = this.state;
         return (
             <div>
                 <span className="search-text">
                     <Icon type="filter" />
                     检索
                 </span>
-                <AutoComplete
-                    className="search-input"
-                    dataSource={dataSource}
-                    style={{ width: 200 }}
-                    onSelect={onSelect}
-                    onSearch={this.handleSearch}
-                    placeholder="检索资源"
-                />
+                <SearchInput placeholder="请输入检索词" enterButton onSearch={this.handleSearch} style={{ width: 200 }} className="search-input"/>
             </div>
         );
     }
 }
+
+export default connect(selector)(Search)

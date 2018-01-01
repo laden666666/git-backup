@@ -8,7 +8,7 @@ import Search from '../Search'
 import RepertoryList from '../RepertoryList'
 import FooterBtns from '../FooterBtns'
 
-import { selectGitRepertory } from '../../actions/';
+import { selectGitRepertory } from '../../service/gitRepertoryService';
 
 export default class App extends React.Component{
     constructor(props){
