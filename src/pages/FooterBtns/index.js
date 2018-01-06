@@ -1,56 +1,55 @@
 'use babel';
 import React from 'react';
 import {connect} from 'react-redux';
-import { Button } from 'antd';
-import {EditGitRepertory} from '../EditGitRepertory'
+import { Button, Modal } from 'antd';
+import { showEditGitRepertory, getUsableSelectedIDs, deleteGitRepertorys } from '../../service/gitRepertoryService';
+
+const confirm = Modal.confirm;
 
 class FooterBtns extends React.Component{
-    state = {
-        //显示创建新仓库
-        showEditGitRepertory: false,
-    }
-
     constructor(props){
         super(props)
     }
 
     //创建GitRepertory表单相关
     //显示创建表单
-    handleEditGitRepertory = ()=>{
-        this.setState({
-            showEditGitRepertory: true
-        })
+    handleCreateGitRepertory = ()=>{
+        showEditGitRepertory()
     }
-    //保存GitRepertory
-    handleEditGitRepertoryOk = gitRepertory=>{
-        this.setState({
-            showEditGitRepertory: false
+
+    //删除多个资源
+    handleDeleteGitRepertories = async ()=>{
+        let result = await new Promise((resolve, reject)=>{
+            confirm({
+                title: '您确定要删除这些记录吗?',
+                content: '该操作仅删除本地记录信息，不会删除该记录的备份数据和远程仓库',
+                cancelText: '取消',
+                okText: '确定',
+                onOk() {
+                    resolve(true);
+                },
+                onCancel() {
+                    resolve(false);
+                },
+            })
         })
-    }
-    //关闭表单
-    handleEditGitRepertoryCancel = ()=>{
-        this.setState({
-            showEditGitRepertory: false
-        })
+
+        if(result){
+            const ids = getUsableSelectedIDs()
+            await deleteGitRepertorys(ids)
+        }
     }
 
     render(){
         return (<div className="footer">
-            <Button type="primary">备份{this.state.showEditGitRepertory + ''}</Button>
+            <Button type="primary">备份</Button>
 
             <div className="right-btns">
-                <Button type="primary">修改</Button>
-                <Button type="primary">删除</Button>
-                <Button type="primary" onClick={this.handleEditGitRepertory}>新建
+                <Button type="primary" onClick={this.handleDeleteGitRepertories}>删除</Button>
+                <Button type="primary" onClick={this.handleCreateGitRepertory}>新建
                 </Button>
                 <Button type="primary">导入</Button>
             </div>
-
-            {/*创建GitRepertory表单*/}
-            <EditGitRepertory visible={this.state.showEditGitRepertory}
-                onOk={this.handleEditGitRepertoryOk}
-                onCancel={this.handleEditGitRepertoryCancel}
-            ></EditGitRepertory>
         </div>);
     }
 }

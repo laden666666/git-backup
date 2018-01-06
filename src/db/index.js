@@ -11,7 +11,7 @@ var db = new loki('loki.json', {
     autosaveInterval: 1000
 })
 
-export async function gitRepertoryCollection() {
+export async function getGitRepertoryCollection() {
     await loadPromise
     var collection = db.getCollection('GitRepertory')
     if(!collection){

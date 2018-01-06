@@ -7,6 +7,8 @@ import LabelList from '../LabelList/'
 import Search from '../Search'
 import RepertoryList from '../RepertoryList'
 import FooterBtns from '../FooterBtns'
+import EditGitRepertory from '../EditGitRepertory'
+import ImportGitRepertory from '../ImportGitRepertory'
 
 import { selectGitRepertory } from '../../service/gitRepertoryService';
 
@@ -30,6 +32,8 @@ export default class App extends React.Component{
                 </Content>
                 <Footer>
                     <FooterBtns></FooterBtns>
+                    <EditGitRepertory></EditGitRepertory>
+                    {/* <ImportGitRepertory></ImportGitRepertory> */}
                 </Footer>
             </Layout>
         </Layout>);

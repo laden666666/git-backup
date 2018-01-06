@@ -1,18 +1,18 @@
 'use babel';
 import React from 'react';
 import PropTypes from 'prop-types';
+import selector from './selector';
+import { connect } from 'react-redux';
 import { Tag, Input, Tooltip, Icon } from 'antd';
 import { AutoComplete } from 'antd';
 
-const dataSource = ['前端', 'PHP', 'C++', '安卓'];
-
-export default class Labels extends React.Component {
+class Labels extends React.Component {
     constructor(props){
         super(props)
         this.state = {
             inputVisible: false,
             inputValue: '',
-            dataSource: [...dataSource],
+            dataSource: [...props.labels.filter(label => !~props.value.indexOf(label))],
         };
     }
 
@@ -25,7 +25,7 @@ export default class Labels extends React.Component {
 
     //显示输入框
     showInput = () => {
-        this.setState({ inputVisible: true }, () => this.input.focus());
+        this.setState({ inputVisible: true }, () => this.refs.autoComplete.focus());
     }
     handleInputChange = (e) => {
         this.setState({ inputValue: e.target.value });
@@ -43,6 +43,7 @@ export default class Labels extends React.Component {
         this.setState({
             inputVisible: false,
             inputValue: '',
+            dataSource: [...this.props.labels.filter(label => label != inputValue).filter(label => !~this.props.value.indexOf(label))],
         });
     }
 
@@ -57,10 +58,14 @@ export default class Labels extends React.Component {
         this.setState({
             inputVisible: false,
             inputValue: '',
+            dataSource: [...this.props.labels.filter(label => !~this.props.value.indexOf(label))],
         });
     }
 
     handleSearch = (value) => {
+        this.setState({
+            dataSource: this.props.labels.filter(label => ~label.indexOf(value)).filter(label => !~this.props.value.indexOf(label)),
+        });
     }
 
     saveInputRef = input => this.input = input
@@ -81,6 +86,7 @@ export default class Labels extends React.Component {
                 })}
                 {inputVisible && (
                     <AutoComplete
+                        ref="autoComplete"
                         style={{ width: 78 }}
                         dataSource={this.state.dataSource}
                         onSelect={this.handleSelect}
@@ -119,3 +125,5 @@ Labels.propTypes = {
 Labels.defaultProps = {
     onChange: ()=>{},
 };
+
+export default connect(selector)(Labels)

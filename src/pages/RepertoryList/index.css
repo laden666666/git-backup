@@ -1,4 +1,4 @@
-@import "./Labels/index.css";
+@import "../Labels/index.css";
 
 .ant-table-header{
     overflow-y: hidden;

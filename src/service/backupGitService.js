@@ -2,6 +2,7 @@ import config from '../../config'
 import gitP from 'simple-git/promise';
 import path from 'path'
 import fs from 'fs-extra'
+import { fail } from 'assert';
 
 const extractZip  = require('extract-zip');
 const filesTree = require('files-tree');
@@ -89,5 +90,80 @@ export default {
             await fs.remove(to)
         }
         await this.zipFolder(from, to)
+    },
+    checkGitURL(url){
+
+        var isPlainGhUrl = function(string) {
+            var re = new RegExp('(?:https?\\:\\/\\/)[0-9a-zA-Z\.\-_]+\\/?$');
+            return re.test(string);
+        };
+          
+          // Switch to strict mode automatically if the following pattern matches passed
+          // string
+          var isStrictRequired = function(string) {
+            return /git(@|:)|\.git(?:\/?|\\#[0-9a-zA-Z\.\-_]+)$/.test(string);
+          };
+          
+          /**
+           * isGithubUrl
+           * Check if a passed string is a valid GitHub URL
+           *
+           * @name isGithubUrl
+           * @function
+           *
+           * @param {String} url A string to be validated
+           * @param {Object} options An object containing the following fields:
+           *  - `strict` (Boolean): Match only URLs ending with .git
+           *  - `repository` (Boolean): Match only valid GitHub repo URLs
+           * @return {Boolean} Result of validation
+           */
+          function isGithubUrl(url, options) {
+            options = options || {};
+            var isStrict = options.strict || isStrictRequired(url);
+            var repoRequired = options.repository || isStrict;
+            var strictPattern = '\\/[\\w\\.-]+?\\.git(?:\\/?|\\#[\\w\\.\\-_]+)?$';
+            var loosePattern = repoRequired
+              ? '\\/[\\w\\.-]+\\/?(?!=.git)(?:\\.git(?:\\/?|\\#[\\w\\.\\-_]+)?)?$'
+              : '(?:\\/[\\w\\.\\/-]+)?\\/?(?:#\\w+?|\\?.*)?$';
+            var endOfPattern = isStrict ? strictPattern : loosePattern;
+            var pattern = '(?:git|https?|git@)(?:\\:\\/\\/)?[0-9a-zA-Z\.\-_]+[/|:][A-Za-z0-9-]+?' + endOfPattern;
+          
+            if (isPlainGhUrl(url) && !repoRequired) {
+              return true;
+            }
+          
+            var re = new RegExp(pattern);
+            return re.test(url);
+          };
+
+        return isGithubUrl(url)
+    },
+    /**
+     * 检查url是否是git资源。如果不是git资源返回false
+     * @param {any} url 
+     * @returns 
+     */
+    checkURLIsRepo(url){
+        const git = gitP();
+        
+        var dir = path.join(__dirname, '../../temp/_checkURL')
+
+        return fs.emptyDir(dir)
+            .then(() => {
+                git.cwd(dir)
+                git.init()
+            })
+            .then(() => git.addRemote('remote', url))
+            .then(() => git.raw(['remote', 'show', 'remote']))
+            .then(function(){
+                return true
+            }, function(err){
+                console.log(err)
+                return false
+            })
+            .then(result => {
+                return fs.remove(dir)
+                    .then(()=>result)
+            })
     }
 }
