@@ -4,11 +4,10 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Labels from '../Labels/index';
 import {GitRepertoryFactory} from '../../entity/GitRepertory';
-import {addGitRepertory, editGitRepertory, closeEditGitRepertory} from '../../service/gitRepertoryService'
+import {addGitRepertory, editGitRepertory, closeEditGitRepertory, checkGitRepertoryName} from '../../service/gitRepertoryService'
 import backupGitService from '../../service/backupGitService'
 
 import selector from './selector';
-import { fail } from 'assert';
 
 const FormItem = Form.Item;
 
@@ -49,15 +48,29 @@ const EditGitRepertoryForm = Form.create({
         labelCol: { span: 8 },
         wrapperCol: { span: 14 },
     };
+    const {id} = props.editRepertory
     return (
         <Form>
             <FormItem label="项目名称" {...formItemLayout}>
                 {getFieldDecorator('name', {
-                    rules: [{ required: true, message: '项目名必须填写' }],
+                    validateFirst: true,
+                    rules: [{ required: true, message: '项目名必须填写' },
+                        {validator(rule, value, callback) {
+                            checkGitRepertoryName(id, value).then(result=>{
+                                if(result){
+                                    callback()
+                                } else {
+                                    callback(new Error('该工程名已存在'))
+                                }
+                            }, err=>{
+                                callback(err)
+                            })
+                        }},],
                 })(<Input />)}
             </FormItem>
             <FormItem label="仓库URL地址" {...formItemLayout}>
                 {getFieldDecorator('repertoryURL', {
+                    validateFirst: true,
                     rules: [{ required: true, message: '仓库URL地址必须填写' },
                         {validator(rule, value, callback) {
                             if(backupGitService.checkGitURL(value)){
@@ -67,7 +80,7 @@ const EditGitRepertoryForm = Form.create({
                             }
 
                         }},],
-                })(<Input />)}
+                })(props.isEdit ? <span>{props.editRepertory.repertoryURL}</span> : <Input /> )}
             </FormItem>
             <FormItem label="标签" {...formItemLayout}>
                 {getFieldDecorator('labels', {
@@ -119,20 +132,21 @@ class EditGitRepertory extends React.Component {
                     this.setState({
                         loading: true
                     })
-                    //如果是新建校验是否是有效git资源
-                    if(await backupGitService.checkURLIsRepo(this.state._gitRepertory.url)){
-                        if(this.state.isEdit){
-                            await editGitRepertory(this.state._gitRepertory)
-                        } else {
-                            await addGitRepertory(this.state._gitRepertory)
-                        }
-                        if(typeof this.props.onOk === 'function'){
-                            this.props.onOk(this.state._gitRepertory)
-                        }
-                        closeEditGitRepertory()
+
+                    if(this.state.isEdit){
+                        await editGitRepertory(this.state._gitRepertory)
                     } else {
-                        message.error('该仓库URL地址是无效的');
+                        //如果是新建校验是否是有效git资源
+                        if(await backupGitService.checkURLIsRepo(this.state._gitRepertory.repertoryURL)){
+                            await addGitRepertory(this.state._gitRepertory)
+                        } else {
+                            message.error('该仓库URL地址是无效的');
+                        }
                     }
+                    if(typeof this.props.onOk === 'function'){
+                        this.props.onOk(this.state._gitRepertory)
+                    }
+                    closeEditGitRepertory()
                 } catch (e){
                     console.log(e)
                 }
@@ -155,19 +169,21 @@ class EditGitRepertory extends React.Component {
         const fields = this.state.fields;
         return (
             <Modal
+                destroyOnClose
                 visible={visible}
                 title="Title"
                 onOk={this.handleOk}
                 onCancel={this.handleCancel}
                 footer={[
                     <Button key="back" onClick={this.handleCancel}>取消</Button>,
-                    <Button key="submit" type="primary" onClick={this.handleOk}>
+                    <Button key="submit" loading={this.state.loading} type="primary" onClick={this.handleOk}>
                         保存
                     </Button>,
                 ]}
             >
-                <Spin spinning={this.state.loading} delay={500} ></Spin>
-                <EditGitRepertoryForm ref="form" editRepertory={this.state._gitRepertory} formInfo={this.state.formInfo} onChange={this.handleFormChange} />
+                <Spin tip="正在校验仓库URL地址的有效性..." spinning={this.state.loading} delay={500} >
+                    <EditGitRepertoryForm ref="form" isEdit={this.state.isEdit} editRepertory={this.state._gitRepertory} formInfo={this.state.formInfo} onChange={this.handleFormChange} />
+                </Spin>
             </Modal>
         );
     }

@@ -1,5 +1,7 @@
+let baseID = Date.now()
+
 export const GitRepertoryFactory = {
-    create(id=Date.now(), name='', repertoryURL='', labels=[]){
+    create(id=baseID++, name='', repertoryURL='', labels=[]){
         var object = {}
         object.id = id;
         object.name = name;

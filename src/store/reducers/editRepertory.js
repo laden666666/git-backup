@@ -4,6 +4,7 @@ import {GitRepertoryFactory} from '../../entity/GitRepertory'
 const initialState = {
     //列表数据
     visible: false,
+    importVisible: false,
     editRepertory: null
 }
 
@@ -20,6 +21,16 @@ export default function repertoryList(state = initialState, {type, payload}) {
             return {
                 ...state,
                 visible: false
+            }
+        case editRepertoryTypes.SHOW_IMPORT_REPERTORY:
+            return {
+                ...state,
+                importVisible: true
+            }
+        case editRepertoryTypes.HIDE_IMPORT_REPERTORY:
+            return {
+                ...state,
+                importVisible: false
             }
         default:
             return state

@@ -93,7 +93,7 @@ export default {
     },
     checkGitURL(url){
 
-        var isPlainGhUrl = function(string) {
+        var isPlainUrl = function(string) {
             var re = new RegExp('(?:https?\\:\\/\\/)[0-9a-zA-Z\.\-_]+\\/?$');
             return re.test(string);
         };
@@ -126,9 +126,9 @@ export default {
               ? '\\/[\\w\\.-]+\\/?(?!=.git)(?:\\.git(?:\\/?|\\#[\\w\\.\\-_]+)?)?$'
               : '(?:\\/[\\w\\.\\/-]+)?\\/?(?:#\\w+?|\\?.*)?$';
             var endOfPattern = isStrict ? strictPattern : loosePattern;
-            var pattern = '(?:git|https?|git@)(?:\\:\\/\\/)?[0-9a-zA-Z\.\-_]+[/|:][A-Za-z0-9-]+?' + endOfPattern;
+            var pattern = '(?:git|https?|git@)(?:\\:\\/\\/)?[0-9a-zA-Z\.\-_]+[/|:][A-Za-z0-9-_]+?' + endOfPattern;
           
-            if (isPlainGhUrl(url) && !repoRequired) {
+            if (isPlainUrl(url) && !repoRequired) {
               return true;
             }
           
@@ -136,7 +136,7 @@ export default {
             return re.test(url);
           };
 
-        return isGithubUrl(url)
+        return isGithubUrl(url, {strict: true})
     },
     /**
      * 检查url是否是git资源。如果不是git资源返回false
@@ -158,7 +158,6 @@ export default {
             .then(function(){
                 return true
             }, function(err){
-                console.log(err)
                 return false
             })
             .then(result => {

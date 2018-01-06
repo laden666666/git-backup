@@ -2,7 +2,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import { Button, Modal } from 'antd';
-import { showEditGitRepertory, getUsableSelectedIDs, deleteGitRepertorys } from '../../service/gitRepertoryService';
+import { showEditGitRepertory, getUsableSelectedIDs, deleteGitRepertorys, showImportGitRepertory } from '../../service/gitRepertoryService';
 
 const confirm = Modal.confirm;
 
@@ -16,9 +16,22 @@ class FooterBtns extends React.Component{
     handleCreateGitRepertory = ()=>{
         showEditGitRepertory()
     }
+    handleImportGitRepertory = ()=>{
+        showImportGitRepertory()
+    }
 
     //删除多个资源
     handleDeleteGitRepertories = async ()=>{
+        const ids = getUsableSelectedIDs()
+
+        if(ids.length == 0){
+            Modal.error({
+                title: '错误',
+                content: '请至少勾选一条记录！',
+            });
+            return
+        }
+
         let result = await new Promise((resolve, reject)=>{
             confirm({
                 title: '您确定要删除这些记录吗?',
@@ -35,7 +48,6 @@ class FooterBtns extends React.Component{
         })
 
         if(result){
-            const ids = getUsableSelectedIDs()
             await deleteGitRepertorys(ids)
         }
     }
@@ -48,7 +60,7 @@ class FooterBtns extends React.Component{
                 <Button type="primary" onClick={this.handleDeleteGitRepertories}>删除</Button>
                 <Button type="primary" onClick={this.handleCreateGitRepertory}>新建
                 </Button>
-                <Button type="primary">导入</Button>
+                <Button type="primary" onClick={this.handleImportGitRepertory}>导入</Button>
             </div>
         </div>);
     }

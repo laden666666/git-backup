@@ -33,7 +33,7 @@ export default class App extends React.Component{
                 <Footer>
                     <FooterBtns></FooterBtns>
                     <EditGitRepertory></EditGitRepertory>
-                    {/* <ImportGitRepertory></ImportGitRepertory> */}
+                     <ImportGitRepertory></ImportGitRepertory>
                 </Footer>
             </Layout>
         </Layout>);

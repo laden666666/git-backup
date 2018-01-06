@@ -32,6 +32,20 @@ export const addGitRepertory = async gitRepertory => {
 }
 
 /**
+ * 创建多个gitRepertory对象，并保存到数据库中。然后刷新store中的列表数据
+ * @param gitRepertorys
+ * @returns {Promise.<void>}
+ */
+export const addGitRepertorys = async gitRepertorys => {
+    var collection = await getGitRepertoryCollection()
+    for(let i = 0; i < gitRepertorys.length; i++){
+        var gitRepertory = gitRepertorys[i]
+        collection.insert(gitRepertory)
+    }
+    await selectGitRepertory(false)
+}
+
+/**
  * 删除gitRepertory对象，并保存到数据库中。然后刷新store中的列表数据
  * @param id
  * @returns {Promise.<void>}
@@ -139,4 +153,41 @@ export const closeEditGitRepertory = () => {
         type: editRepertoryTypes.HIDE_GIT_REPERTORY,
         payload: {}
     })
+}
+
+/**
+ * 打开导入对话框，导入仓库
+ */
+export const showImportGitRepertory = () => {
+    store.dispatch({
+        type: editRepertoryTypes.SHOW_IMPORT_REPERTORY,
+    })
+}
+/**
+ * 关闭导入对话框
+ */
+export const closeImportGitRepertory = () => {
+    store.dispatch({
+        type: editRepertoryTypes.HIDE_IMPORT_REPERTORY,
+    })
+}
+
+/**
+ * 检验工程名是否唯一
+ * @param gitRepertory
+ * @returns {Promise.<void>}
+ */
+export const checkGitRepertoryName = async (id, name) => {
+    var repertoryCollection = await getGitRepertoryCollection()
+    var _gitRepertory = repertoryCollection.chain().find({name: name, id: { '$ne' : id }}).data()[0]
+    return !_gitRepertory
+}
+
+/**
+ * 获得所有工程名
+ * @returns {Promise.<string[]>}
+ */
+export const getAllGitRepertoryName = async () => {
+    var repertoryCollection = await getGitRepertoryCollection()
+    return repertoryCollection.chain().data().map(repertory=>repertory.name)
 }
