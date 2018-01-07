@@ -39,7 +39,7 @@ class ImportGitRepertory extends React.Component {
             vlidatingRepertoryID: 0,
         }
 
-        this._close = false
+        this._windowId = false
 
         getAllGitRepertoryName().then(names => {
             this._allGitRepertoryName = names
@@ -63,7 +63,8 @@ class ImportGitRepertory extends React.Component {
                 vlidatingRepertoryID: 0,
             })
 
-            this._close = false
+            //窗口的id，当窗口关闭时候，无法取消后台的异步处理，给窗口加一个id，用于每一个异步过程结束后判断是否继续任务
+            this._windowId = Date.now()
 
             getAllGitRepertoryName().then(names => {
                 this._allGitRepertoryName = names
@@ -129,22 +130,22 @@ class ImportGitRepertory extends React.Component {
             willImportRepertoryList,
             step: 2,
         })
-        this.validateRepertoryURL()
+        this.validateRepertoryURL(this._windowId)
     }
 
     /**
      * 校验url是否可用
      * @returns {Promise.<void>}
      */
-    validateRepertoryURL = async ()=>{
-        if(this._close){
+    validateRepertoryURL = async (windowId)=>{
+        if(this._windowId != windowId){
             return
         }
 
         const {step, willImportRepertoryList,  repertoryCheckResultMap, vlidatingRepertoryID} = this.state
         var index = willImportRepertoryList.findIndex(repertory=>repertory.id == vlidatingRepertoryID) + 1
 
-        if(this._close){
+        if(this._windowId != windowId){
             return
         }
 
@@ -162,17 +163,17 @@ class ImportGitRepertory extends React.Component {
             this.setState({
                 repertoryCheckResultMap :  {...repertoryCheckResultMap, [gitRepertory.id]: result}
             })
-            this.validateRepertoryURL()
+            this.validateRepertoryURL(windowId)
         }
     }
 
     handleOk = async ()=>{
         await addGitRepertorys(this.state.willImportRepertoryList)
-        this._close = true
+        this._windowId = 0
         closeImportGitRepertory()
     }
     handleCancel = ()=>{
-        this._close = true
+        this._windowId = 0
         closeImportGitRepertory()
     }
 
@@ -190,7 +191,7 @@ class ImportGitRepertory extends React.Component {
                                     xs: { span: 24 },
                                     sm: { span: 18 },
                             },}}
-                            label="Fail"
+                            label="仓库URL"
                             validateStatus={this.state.isValid ? "" : "error"}
                             help={this.state.isValid ? "" : "格式错误"}
                         >
@@ -250,7 +251,7 @@ class ImportGitRepertory extends React.Component {
         var btns = [], title = ''
         switch (step){
             case (1):
-                title = '输入要导入的git仓库URL'
+                title = '输入仓库URL'
                 btns = [
                     <Button key="back" onClick={this.handleCancel}>取消</Button>,
                     <Button key="next" type="primary" onClick={this.next}>

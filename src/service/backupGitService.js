@@ -2,7 +2,11 @@ import config from '../../config'
 import gitP from 'simple-git/promise';
 import path from 'path'
 import fs from 'fs-extra'
-import { fail } from 'assert';
+import { backupTypes } from '../constants/ActionTypes'
+import store from '../store'
+
+//防止id冲突，所以采用时间戳生成初始id，然后自增生成后续id
+let baseID = Date.now()
 
 const extractZip  = require('extract-zip');
 const filesTree = require('files-tree');
@@ -11,6 +15,10 @@ const zip = require("node-native-zip");
 function initialiseRepo (git, origin) {
     return git.init()
     .then(() => git.addRemote('origin', origin))
+}
+
+function checkIsRepo (dir) {
+    return fs.exists(path.join(dir, '.git'))
 }
 
 function paramToArray(param) {
@@ -23,27 +31,64 @@ function paramToArray(param) {
     }
 }
 
+/**
+ * 格式化日期字符串
+ * @param date
+ * @param fmt
+ * @returns {*}
+ */
+function formatDate(date, fmt) {
+    var o = {
+      "M+": date.getMonth() + 1,                 //月份
+      "d+": date.getDate(),                    //日
+      "h+": date.getHours(),                   //小时
+      "m+": date.getMinutes(),                 //分
+      "s+": date.getSeconds(),                 //秒
+      "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+      "S": date.getMilliseconds()             //毫秒
+    };
+    if (/(y+)/.test(fmt))
+      fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+      if (new RegExp("(" + k + ")").test(fmt))
+        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+  }
+
 export default {
-    initGitReop(origin){
-        const git = gitP();
+    /**
+     * 拉取git资源。如果已经初始化，会继承老资源拉取；否则会先初始化
+     * @param {any} id 
+     * @param {any} name 
+     * @param {any} origin 
+     * @returns 
+     */
+    fetchGitReop(id, name, origin){
         
-        var dir = path.join(__dirname, '../../work', this.getReopName(origin))
+        var dir = path.join(__dirname, '../../work', id + '', name)
 
         return fs.ensureDir(dir)
         .then(() => {
-            git.cwd(dir)
-
-            return git.checkIsRepo()
-            .then(isRepo => !isRepo && initialiseRepo(git, origin))
+            var git = gitP(dir);
+            return checkIsRepo(dir)
+            .then(isRepo => {
+                if(!isRepo){
+                    return initialiseRepo(git, origin)
+                }
+            })
             .then(() => git.fetch())
-            .then(() => git.checkout('master'));
         })
-        .then(()=>dir)
+        .then(()=>path.join(__dirname, '../../work', id + ''))
 
 
     },
+    /**
+     * 根据url获取资源名称
+     * @param {any} origin 
+     * @returns 
+     */
     getReopName(origin){
-        var names = /\/([a-zA-Z0-9\\-]*).git$/g.exec(origin)
+        var names = /\/([_a-zA-Z0-9\-]*).git$/g.exec(origin)
         if(!names){
             throw new Error('未能获取正确的资源名称')
         } else {
@@ -82,6 +127,57 @@ export default {
             })
         })
     },
+    //备份多个仓库
+    async backupRepertoryList(repertoryList, decorator, {
+        onStepFinish=()=>{},
+        onStepFail=()=>{},
+        onStep=()=>{},
+        useZip=false, 
+        hasTimeStamp=false
+    }={}) {
+
+        var cancel = false
+
+        for(let i = 0 ; i < repertoryList.length; i++){
+            if(cancel){
+                break
+            }
+
+            var repertory = repertoryList[i]
+            
+            if(typeof onStep == 'function'){
+                onStep(repertory)
+            }
+            try{
+                //拉取资源
+                var fromPath = await this.fetchGitReop(repertory.id, repertory.name,repertory.repertoryURL)
+                //生成备份名
+                var name = repertory.name + (hasTimeStamp ? formatDate(new Date(), 'yyyyMMddhhmm') : '')
+                var toPath = path.join(decorator,name)
+
+                //判断是否压缩
+                if(useZip){
+                    await this.zipFolder(fromPath, toPath + '.zip')
+                } else {
+                    if(fs.existsSync(toPath)){
+                        await fs.remove(toPath)
+                    }
+                    await fs.copy(fromPath, toPath)
+                }
+
+                if(typeof onStepFinish == 'function'){
+                    onStepFinish(repertory)
+                }
+            } catch (e){
+                console.log(e)
+                if(typeof onStepFail == 'function'){
+                    onStepFail(repertory)
+                    
+                }
+            }
+        }
+    },
+    //压缩
     async zipGitReop(origin) {
         
         var from = path.join(__dirname, '../../work', this.getReopName(origin))
@@ -91,6 +187,11 @@ export default {
         }
         await this.zipFolder(from, to)
     },
+    /**
+     * 检验git仓库的url是否合法。该检验仅检验url字符串，不验证真正的url是否是git仓库
+     * @param {any} url 
+     * @returns 
+     */
     checkGitURL(url){
 
         var isPlainUrl = function(string) {
@@ -146,7 +247,7 @@ export default {
     checkURLIsRepo(url){
         const git = gitP();
         
-        var dir = path.join(__dirname, '../../temp/_checkURL')
+        var dir = path.join(__dirname, '../../temp/_checkURL' + baseID++)
 
         return fs.emptyDir(dir)
             .then(() => {
@@ -164,5 +265,23 @@ export default {
                 return fs.remove(dir)
                     .then(()=>result)
             })
-    }
+    },
+    /**
+     * 关闭备份对话框
+     */
+    closeBackup(){
+        store.dispatch({
+            type: backupTypes.HIDE_BACKUP,
+        })
+    },
+    /**
+     * 打开备份对话框
+     * @param {any} list        要备份的记录列表
+     */
+    showBackUp(list){
+        store.dispatch({
+            type: backupTypes.SHOW_BACKUP,
+            payload: list
+        })
+    },
 }

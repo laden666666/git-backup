@@ -21,6 +21,12 @@ describe('git相关函数测试', function() {
     it('获得仓库名称', function() {
         var reopName = backupGitService.getReopName('https://github.com/laden666666/git-backup.git')
         assert.equal(reopName, 'git-backup');
+        var reopName = backupGitService.getReopName('https://gitee.com/37duman/tpframe.git')
+        assert.equal(reopName, 'tpframe');
+        var reopName = backupGitService.getReopName('https://gitee.com/jiankian/AI-OpenAPI-CMS.git')
+        assert.equal(reopName, 'AI-OpenAPI-CMS');
+        var reopName = backupGitService.getReopName('https://gitee.com/Tinywan/html5_dash_hls_rtmp.git')
+        assert.equal(reopName, 'html5_dash_hls_rtmp');
     });
 
     it('判断远程仓库是否有效', async function() {

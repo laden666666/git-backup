@@ -37,11 +37,13 @@ export default function repertoryList(state = initialState, {type, payload}) {
             return {
                 ...state,
                 filterText: payload,
+                selectedIDs: [],
             }
         case repertoryListTypes.CHANGE_SELECTED_LABEL_KEY:
             return {
                 ...state,
                 selectedLabelKey: payload,
+                selectedIDs: [],
             }
         default:
             return state

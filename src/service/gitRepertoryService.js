@@ -92,10 +92,18 @@ export const changeSelectedIDs = SelectedIDs => {
 /**
  * 获得当前有效的被选记录id
  */
+export const getUsableSelectedRepertory = async () => {
+    var ids = getUsableSelectedIDs()
+    var repertoryCollection = await getGitRepertoryCollection()
+    return repertoryCollection.chain().data().filter(repertory=>ids.indexOf(repertory.id) > -1)
+}
+
+/**
+ * 获得当前有效的被选记录id
+ */
 export const getUsableSelectedIDs = () => {
     const { list, filterText, selectedIDs, selectedLabelKey } = store.getState().repertoryList
     const usableIDs = filterGitRepertoryList(list, filterText, selectedLabelKey).map((repertory) => repertory.id);
-    console.log(usableIDs, selectedIDs)
     return selectedIDs.filter(id=>!!~usableIDs.indexOf(id))
 }
 

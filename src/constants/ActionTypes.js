@@ -17,3 +17,9 @@ export const editRepertoryTypes = {
     HIDE_IMPORT_REPERTORY: 'HIDE_IMPORT_REPERTORY',
 }
 
+//backup
+export const backupTypes = {
+    SHOW_BACKUP: 'SHOW_BACKUP',
+    HIDE_BACKUP: 'HIDE_BACKUP',
+}
+

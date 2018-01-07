@@ -4,9 +4,9 @@
     overflow-y: hidden;
 
 }
-.ant-table-header::-webkit-scrollbar-track-piece{width:16px;background-color:#fafafa;  }
+.ant-table-header::-webkit-scrollbar-track-piece{width:8px;background-color:#fafafa;  }
 
-.ant-table-header::-webkit-scrollbar{width:16px;height:6px ; }
+.ant-table-header::-webkit-scrollbar{width:8px;height:6px ; }
 
 .ant-table-header::-webkit-scrollbar-thumb{height:50px;background:#fafafa;   cursor:pointer;}
 
@@ -20,6 +20,12 @@
 }
 .repertoryListBtns{
 
+}
+
+.repertoryListBtns .ant-btn-danger{
+    color : rgb(255, 255, 255) ;
+    background : rgb(255, 77, 79) ;
+    border-color : rgb(255, 77, 79) ;
 }
 .ant-table-placeholder{
     color: #777;

@@ -2,7 +2,8 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import { Button, Modal } from 'antd';
-import { showEditGitRepertory, getUsableSelectedIDs, deleteGitRepertorys, showImportGitRepertory } from '../../service/gitRepertoryService';
+import { showEditGitRepertory, getUsableSelectedIDs, deleteGitRepertorys, showImportGitRepertory, getUsableSelectedRepertory } from '../../service/gitRepertoryService';
+import backupGitService from '../../service/backupGitService';
 
 const confirm = Modal.confirm;
 
@@ -52,9 +53,25 @@ class FooterBtns extends React.Component{
         }
     }
 
+    //备份
+    handleBackupGitRepertories = async ()=>{
+        const ids = getUsableSelectedIDs()
+
+        if(ids.length == 0){
+            Modal.error({
+                title: '错误',
+                content: '请至少勾选一条记录！',
+            });
+            return
+        }
+
+        var selectedRepertoryList = await getUsableSelectedRepertory()
+        backupGitService.showBackUp(selectedRepertoryList)
+    }
+
     render(){
         return (<div className="footer">
-            <Button type="primary">备份</Button>
+            <Button type="primary" onClick={this.handleBackupGitRepertories}>备份</Button>
 
             <div className="right-btns">
                 <Button type="primary" onClick={this.handleDeleteGitRepertories}>删除</Button>
