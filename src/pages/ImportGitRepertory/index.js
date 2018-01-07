@@ -278,6 +278,7 @@ class ImportGitRepertory extends React.Component {
 
         return (
             <Modal
+                maskClosable={false}
                 destroyOnClose
                 visible={this.props.importVisible}
                 title={title}

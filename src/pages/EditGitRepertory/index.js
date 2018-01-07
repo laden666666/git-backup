@@ -169,6 +169,7 @@ class EditGitRepertory extends React.Component {
         const fields = this.state.fields;
         return (
             <Modal
+                maskClosable={false}
                 destroyOnClose
                 visible={visible}
                 title="Title"
