@@ -13,3 +13,4 @@ temp/
 *.sln
 *.history
 *.vscode
+package-lock.json
