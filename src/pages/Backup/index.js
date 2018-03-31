@@ -22,7 +22,7 @@ class Backup extends React.Component {
             //备份完成的id列表
             complateReceiveIDList: [],
             //备份失败的id列表
-            failReceiveIDList: [],
+            failReceiveList: [],
             //当前正在备份的id
             isBackupingId: 0,
         }
@@ -34,14 +34,14 @@ class Backup extends React.Component {
                 step: 1,
                 isCanceling: false,
                 complateReceiveIDList: [],
-                failReceiveIDList: [],
+                failReceiveList: [],
                 isBackupingId: 0,
             })
         }
     }
 
     handleOk = () =>{
-        var {complateReceiveIDList, failReceiveIDList} = this.state
+        var {complateReceiveIDList, failReceiveList} = this.state
 
         this.refs.backupForm.validateFields(async (err, values) => {
             if (!err) {
@@ -60,7 +60,7 @@ class Backup extends React.Component {
                     onStepFail : (repertory)=>{
                         console.log('失败备份'+ repertory.name)
                         this.setState({
-                            failReceiveIDList: [...this.state.failReceiveIDList, repertory.id]
+                            failReceiveList: [...this.state.failReceiveList, {id: repertory.id, name: repertory.name}]
                         })
                     },
                     onStep : (repertory)=>{
@@ -71,11 +71,22 @@ class Backup extends React.Component {
                     useZip : values.useZip, 
                     hasTimeStamp : values.hasTimeStamp
                 })
+
+                if(this.state.failReceiveList.length){
+                    Modal.error({
+                        title: '备份完成',
+                        content: [`${this.state.complateReceiveIDList.length ? 
+                            `成功备份${this.state.complateReceiveIDList.length}条` : '' }`, `${
+                                this.state.failReceiveList.length ? `失败备份${
+                                    this.state.failReceiveList.length}条(${this.state.failReceiveList.map(({name})=>name).join('，')})` : '' }`].join('\n'),
+                    })
+                } else {
+                    //如果没有错误，用info提示
+                    message.info(`备份完成${this.state.complateReceiveIDList.length ? 
+                        `，成功备份${this.state.complateReceiveIDList.length}条` : '' }`)
+                }
                 
-                message.info(`备份完成${this.state.complateReceiveIDList.length ? 
-                    `，成功备份${this.state.complateReceiveIDList.length}条` : '' }${
-                        this.state.failReceiveIDList.length ? `，失败备份${
-                            this.state.failReceiveIDList.length}条` : '' }`)
+               
                 backupGitService.closeBackup()
             }
         });
@@ -136,10 +147,10 @@ class Backup extends React.Component {
                                 <div style={{height: 50}}></div>
                             </Spin>
                             <div>成功完成{this.state.complateReceiveIDList.length}个</div>
-                            <div>失败完成{this.state.failReceiveIDList.length}个</div>
+                            <div>失败完成{this.state.failReceiveList.length}个 <span style={{'color': 'red'}}>{this.state.failReceiveList.map(({name})=>name).join('，')}</span></div>
                             
                             <Progress percent={Math.floor( 100 * (this.state.complateReceiveIDList.length 
-                                + this.state.failReceiveIDList.length) / this.props.backupingRepertoryList.length)} status="active" />
+                                + this.state.failReceiveList.length) / this.props.backupingRepertoryList.length)} status="active" />
                         </div>
                     )}
             </Modal>
